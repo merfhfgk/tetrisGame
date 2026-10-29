@@ -23,7 +23,7 @@ public:
     void update();
     
     const Board& getBoard() const {return board;}
-    const Ternimo* getCurrentPiece() const {return currentPiece;}
+    const Tetromino* getCurrentPiece() const {return currentPiece;}
     bool getIsGameOver() const {return isGameOver;}
 };
 
