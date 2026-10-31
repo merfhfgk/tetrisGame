@@ -21,7 +21,7 @@ public:
         char input;
         while (!engine.getIsGameOver()) {
             render(engine);
-            std::cin >> input;
+            if (!(std::cin >> input)) break;
             engine.handleInput(input);
             engine.update();
         }
@@ -36,12 +36,19 @@ private:
         const Board& board = engine.getBoard();
         const Tetromino* piece = engine.getCurrentPiece();
 
-        std::cout << "CATRIS test" << std::endl;
+        const ScoreManager& sm = engine.getScoreManager();
+        std::cout << "CATRIS   Score: " << sm.getScore()
+                  << "   Record: " << sm.getHighScore()
+                  << "   Lines: " << sm.getLines()
+                  << (engine.getIsPaused() ? "   [PAUSED]" : "") << std::endl;
 
         for (int y = 0; y < board.getHeight(); ++y) {
             for (int x = 0; x < board.getWidth(); ++x) {
                 if (piece != nullptr && piece->getX() == x && piece->getY() == y) {
                     std::cout << "[#]";
+                }
+                else if (board.getCell(x, y) != 0) {
+                    std::cout << "[=]";
                 }
                 else {
                     std::cout << " . ";
@@ -50,7 +57,7 @@ private:
             std::cout << std::endl;
         }
         
-        std::cout << "Controls: a (left), d (right), s (down), q (quit)" << std::endl;
+        std::cout << "Controls: a (left), d (right), s (down), w (drop), p (pause), k (save), l (load), q (quit)" << std::endl;
         std::cout << "Enter command and press Return: ";
     }
 };

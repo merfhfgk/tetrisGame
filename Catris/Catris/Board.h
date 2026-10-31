@@ -22,6 +22,10 @@ public:
     int getWidth() const {return width;}
     int getHeight() const {return height;}
     bool isValidMove(int targetX, int targetY) const;
+    int getCell(int x, int y) const {return grid[y][x];}
+    void setCell(int x, int y, int value) {grid[y][x] = value;}
+    int clearLines();
+    void clear();
 };
 
 #endif
