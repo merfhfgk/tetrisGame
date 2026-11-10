@@ -19,6 +19,9 @@ struct SavedGame {
     int pieceY = 0;
     int score = 0;
     int lines = 0;
+    int pieceType = 0;
+    int pieceRotation = 0;
+    int nextType = 0;
 };
 
 class SaveSystem {

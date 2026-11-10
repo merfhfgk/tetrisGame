@@ -21,6 +21,22 @@ bool Board::isValidMove(int targetX, int targetY) const {
     return true;
 }
 
+bool Board::fits(const Tetromino& t) const {
+    for (const auto& c : t.getBlocks()) {
+        if (!isValidMove(c.x, c.y)) return false;
+    }
+    return true;
+}
+
+void Board::lock(const Tetromino& t) {
+    const int value = static_cast<int>(t.getType()) + 1;
+    for (const auto& c : t.getBlocks()) {
+        if (c.x >= 0 && c.x < width && c.y >= 0 && c.y < height){
+            grid[c.y][c.x] = value;
+        }
+    }
+}
+
 void Board::clear(){
     for (auto& row : grid) row.assign(width, 0);
 }

@@ -9,12 +9,13 @@
 #define BOARD_H
 
 #include <vector>
+#include "Tetromino.h"
 
 class Board {
     
 private:
-    const int height = 10;
-    const int width = 20;
+    const int height = 20;
+    const int width = 10;
     std::vector<std::vector<int>> grid;
     
 public:
@@ -22,8 +23,10 @@ public:
     int getWidth() const {return width;}
     int getHeight() const {return height;}
     bool isValidMove(int targetX, int targetY) const;
+    bool fits (const Tetromino& t) const;
     int getCell(int x, int y) const {return grid[y][x];}
     void setCell(int x, int y, int value) {grid[y][x] = value;}
+    void lock(const Tetromino& t);
     int clearLines();
     void clear();
 };
