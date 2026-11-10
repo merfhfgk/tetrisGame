@@ -9,7 +9,7 @@
 #include <fstream>
 
 namespace {
-const char* MAGIC = "CATRIS2";
+const char* MAGIC = "CATRIS3";
 bool inRange(int v, int lo, int hi) { return v >= lo && v <= hi; }
 }
 

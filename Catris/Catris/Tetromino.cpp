@@ -13,7 +13,7 @@ Tetromino::Tetromino(TetrominoType type, int startX, int startY) : type(type), x
         case TetrominoType::I: cells = {{ {-1, 0}, {0,0}, {1, 0}, {2,0} }}; break;
         case TetrominoType::O: cells = {{ {0, 0}, {1,0}, {0, 1}, {1,1} }}; break;
         case TetrominoType::T: cells = {{ {-1, 0}, {0,0}, {1, 0}, {0,1} }}; break;
-        case TetrominoType::S: cells = {{ {0, 0}, {1,0}, {-1, -1}, {0,1} }}; break;
+        case TetrominoType::S: cells = {{ {0, 0}, {1,0}, {-1, 1}, {0,1} }}; break;
         case TetrominoType::Z: cells = {{ {-1, 0}, {0,0}, {0, 1}, {1,1} }}; break;
         case TetrominoType::J: cells = {{ {-1, 0}, {0, 0}, {1,0}, {-1, 1} }}; break;
         case TetrominoType::L: cells = {{ {-1, 0}, {0,0}, {1, 0}, {1,1} }}; break;

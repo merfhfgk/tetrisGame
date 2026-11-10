@@ -123,7 +123,7 @@ bool GameEngine::canMoveDown() const {
 }
 
 void GameEngine::update(float dt) {
-    if (!currentPiece || state == GameState::Playing) return;
+    if (!currentPiece || state != GameState::Playing) return;
     
     dt = std::min(dt, maxDt);
         
@@ -142,7 +142,7 @@ void GameEngine::update(float dt) {
 }
 
 void GameEngine::lockPiece() {
-    board.setCell(currentPiece->getX(), currentPiece->getY(), 1);
+    board.lock(*currentPiece);
     scoreManager.addPoints(10);
     scoreManager.addLineClear(board.clearLines());
     spawnPiece();
