@@ -12,11 +12,12 @@
 #include <cctype>
 #include <iostream>
 #include <cstdlib>
+#include "IRenderer.h"
 
-class ConsoleRenderer {
+class ConsoleRenderer : public IRenderer {
 public:
     
-    void run(GameEngine& engine) {
+    void run(GameEngine& engine) override {
         engine.start();
 
         char input;
