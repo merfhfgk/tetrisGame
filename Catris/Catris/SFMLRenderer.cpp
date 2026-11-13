@@ -8,6 +8,9 @@ SFMLRenderer::SFMLRenderer() {
     
     window.create(sf::VideoMode({totalWidth, height}), "Catris");
     window.setFramerateLimit(60);
+    
+    window.setFramerateLimit(60);
+    window.setKeyRepeatEnabled(false);
 
     if (!font.openFromFile("/Users/mariia/Desktop/tetrisGame/Catris/Catris/font.ttf")) {
         std::cerr << "Failed to load font.ttf! Please ensure it is in the correct directory." << std::endl;
@@ -21,6 +24,17 @@ void SFMLRenderer::run(GameEngine& engine) {
         float dt = clock.restart().asSeconds();
 
         handleEvents(engine);
+        
+        while (window.isOpen()) {
+            float dt = clock.restart().asSeconds();
+
+            handleEvents(engine);
+            handleRealTimeInput(engine, dt);
+
+            engine.update(dt);
+            
+            render(engine);
+        }
 
         engine.update(dt);
 
@@ -74,10 +88,38 @@ void SFMLRenderer::handleEvents(GameEngine& engine) {
     }
 }
 
+void SFMLRenderer::handleRealTimeInput(GameEngine& engine, float dt) {
+    if (engine.getState() != GameState::Playing) {
+        moveTimer = 0.0f;
+        return;
+    }
+
+    bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
+    bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+    bool down = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S);
+
+    if (left || right || down) {
+        moveTimer += dt;
+        
+        float currentThreshold = (moveTimer > initialDelay) ? repeatDelay : initialDelay;
+        
+        if (moveTimer > currentThreshold) {
+            if (left) engine.handleInput(Action::Left);
+            else if (right) engine.handleInput(Action::Right);
+            else if (down) engine.handleInput(Action::SoftDrop);
+            
+            moveTimer = (moveTimer > initialDelay) ? initialDelay : 0.0f;
+        }
+    } else {
+        moveTimer = 0.0f; 
+    }
+}
+
 void SFMLRenderer::render(const GameEngine& engine) {
     window.clear(sf::Color(31, 30, 29));
 
     renderBoard(engine);
+    renderGhostPiece(engine);
     renderPiece(engine);
     renderSidebar(engine);
     renderOverlay(engine);
@@ -118,6 +160,35 @@ void SFMLRenderer::renderPiece(const GameEngine& engine) {
     block.setFillColor(getColor(typeValue));
 
     for (const auto& p : piece->getBlocks()) {
+        block.setPosition({static_cast<float>(p.x) * blockSize, static_cast<float>(p.y) * blockSize});
+        window.draw(block);
+    }
+}
+    
+void SFMLRenderer::renderGhostPiece(const GameEngine& engine) {
+    const Tetromino* current = engine.getCurrentPiece();
+    if (!current || engine.getState() != GameState::Playing) return;
+
+    Tetromino ghost = *current;
+    const Board& board = engine.getBoard();
+
+    Tetromino candidate = ghost;
+    candidate.move(0, 1);
+    while (board.fits(candidate)) {
+        ghost = candidate;
+        candidate.move(0, 1);
+    }
+
+    int typeValue = static_cast<int>(ghost.getType()) + 1;
+    sf::Color ghostColor = getColor(typeValue);
+    ghostColor.a = 150;
+    
+    sf::RectangleShape block(sf::Vector2f({blockSize - 1.0f, blockSize - 1.0f}));
+    block.setFillColor(sf::Color(255, 255, 255, 10)); // Ледь помітна біла заливка
+    block.setOutlineThickness(1.0f);
+    block.setOutlineColor(ghostColor);
+    
+    for (const auto& p : ghost.getBlocks()) {
         block.setPosition({static_cast<float>(p.x) * blockSize, static_cast<float>(p.y) * blockSize});
         window.draw(block);
     }

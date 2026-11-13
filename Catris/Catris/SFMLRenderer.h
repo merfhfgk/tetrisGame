@@ -33,6 +33,14 @@ private:
     
     sf::Color getColor(int typeValue) const;
 
+    float moveTimer = 0.0f;
+    const float initialDelay = 0.17f;
+    const float repeatDelay = 0.05f;
+    
+    void handleRealTimeInput(GameEngine& engine, float dt);
+
+    void renderGhostPiece(const GameEngine& engine);
+    
 public:
     SFMLRenderer();
     void run(GameEngine& engine) override;
