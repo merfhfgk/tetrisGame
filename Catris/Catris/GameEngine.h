@@ -43,6 +43,12 @@ private:
     void spawnPiece();
     void lockPiece();
     void endGame();
+    
+    float inputBlockTimer = 0.0f;
+    float catTimer = 60.0f;
+    float catEffectDuration = 0.0f;
+    std::string catMessage = "";
+    void triggerCatEvent();
 
 public:
     explicit GameEngine(std::string savePath = "catris_save.txt",
@@ -71,6 +77,12 @@ public:
     TetrominoType getNextType() const {return nextType;}
     GameState getState() const {return state;}
     float getFallInterval() const;
+    
+    float getCatTimer() const { return catTimer; }
+    float getCatEffectDuration() const { return catEffectDuration; }
+    std::string getCatMessage() const { return catMessage; }
+    void blockInput(float duration) { inputBlockTimer = duration; }
+    bool isInputBlocked() const { return inputBlockTimer > 0.0f; }
 };
 
 #endif

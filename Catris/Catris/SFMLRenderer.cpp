@@ -218,40 +218,74 @@ void SFMLRenderer::renderSidebar(const GameEngine& engine) {
     float originX = cols * blockSize + 20.0f;
     sf::Color cream(240, 235, 225);
     sf::Color gold(235, 201, 120);
-
-    window.draw(createText("NEXT", 16, originX + 65.0f, 10.0f, cream));
+    sf::Color charcoal(45, 43, 40);
+    sf::Color navyBlue(35, 50, 70);
+    sf::Color warningRed(215, 90, 90);
+    
+    window.draw(createText("NEXT PIECE", 14, originX, 20.0f, gold));
     sf::RectangleShape nextBox(sf::Vector2f({180.0f, 90.0f}));
-    nextBox.setPosition({originX, 35.0f});
-    nextBox.setFillColor(sf::Color(45, 43, 40));
+    nextBox.setPosition({originX, 45.0f});
+    nextBox.setFillColor(charcoal);
     nextBox.setOutlineThickness(1.0f);
     nextBox.setOutlineColor(gold);
     window.draw(nextBox);
-    renderNextPiece(engine.getNextType(), originX + 75.0f, 60.0f);
-
-    window.draw(createText("CAT INVASION", 14, originX + 35.0f, 145.0f, sf::Color(215, 120, 140)));
-    sf::RectangleShape catBox(sf::Vector2f({180.0f, 60.0f}));
-    catBox.setPosition({originX, 165.0f});
-    catBox.setFillColor(sf::Color(55, 40, 45));
-    catBox.setOutlineThickness(1.0f);
-    catBox.setOutlineColor(sf::Color(215, 120, 140));
-    window.draw(catBox);
+        
+    renderNextPiece(engine.getNextType(), originX + 75.0f, 70.0f);
+    
+    window.draw(createText("STATISTICS", 14, originX, 160.0f, gold));
+        
+    sf::RectangleShape statsBox(sf::Vector2f({180.0f, 130.0f}));
+    statsBox.setPosition({originX, 185.0f});
+    statsBox.setFillColor(charcoal);
+    statsBox.setOutlineThickness(1.0f);
+    statsBox.setOutlineColor(navyBlue);
+    window.draw(statsBox);
 
     const ScoreManager& sm = engine.getScoreManager();
-    window.draw(createText("SCORE", 14, originX, 250.0f, gold));
-    window.draw(createText(std::to_string(sm.getScore()), 22, originX, 270.0f, cream));
+    float textX = originX + 15.0f;
+    float textY = 195.0f;
+        
+    window.draw(createText("Score:", 14, textX, textY, cream));
+    window.draw(createText(std::to_string(sm.getScore()), 16, textX + 100.0f, textY - 2.0f, gold));
+        
+    window.draw(createText("Best:", 14, textX, textY + 30.0f, cream));
+    window.draw(createText(std::to_string(sm.getHighScore()), 16, textX + 100.0f, textY + 28.0f, gold));
+        
+    window.draw(createText("Level:", 14, textX, textY + 60.0f, cream));
+    window.draw(createText(std::to_string(sm.getLevel()), 16, textX + 100.0f, textY + 58.0f, cream));
+        
+    window.draw(createText("Lines:", 14, textX, textY + 90.0f, cream));
+    window.draw(createText(std::to_string(sm.getLines()), 16, textX + 100.0f, textY + 88.0f, cream));
 
-    window.draw(createText("BEST", 14, originX, 310.0f, gold));
-    window.draw(createText(std::to_string(sm.getHighScore()), 22, originX, 330.0f, cream));
+    window.draw(createText("CAT INVASION", 14, originX, 340.0f, gold));
+        
+    sf::RectangleShape catBox(sf::Vector2f({180.0f, 65.0f}));
+    catBox.setPosition({originX, 365.0f});
+        
+    int secondsLeft = static_cast<int>(std::max(0.0f, engine.getCatTimer()));
+    std::string catTimeStr = (secondsLeft < 10 ? "0" : "") + std::to_string(secondsLeft);
 
-    window.draw(createText("LEVEL", 14, originX, 370.0f, gold));
-    window.draw(createText(std::to_string(sm.getLevel()), 22, originX, 390.0f, cream));
+    if (engine.getCatEffectDuration() > 0.0f) {
+        catBox.setFillColor(navyBlue);
+        catBox.setOutlineThickness(1.0f);
+        catBox.setOutlineColor(gold);
+        window.draw(catBox);
+            
+        window.draw(createText(engine.getCatMessage(), 16, originX + 15.0f, 385.0f, gold));
+    } else {
+        catBox.setFillColor(charcoal);
+        catBox.setOutlineThickness(1.0f);
+        catBox.setOutlineColor(secondsLeft <= 5 ? warningRed : navyBlue);
+        window.draw(catBox);
+            
+        sf::Color timeColor = (secondsLeft <= 5) ? warningRed : cream;
+        window.draw(createText("Time to Meow: " + catTimeStr, 14, originX + 15.0f, 388.0f, timeColor));
+    }
 
-    window.draw(createText("LINES", 14, originX, 430.0f, gold));
-    window.draw(createText(std::to_string(sm.getLines()), 22, originX, 450.0f, cream));
-    
-    window.draw(createText("Controls:\nWASD - Move/Drop\nSpace - Hard Drop\nP - Pause   K - Save\nL - Load    Q - Quit", 12, originX, 510.0f, sf::Color(150, 150, 150)));
+    std::string controls = "CONTROLS\nWASD - Move/Drop\nSpace - Hard Drop\nP - Pause   K - Save\nL - Load    Q - Quit";
+    window.draw(createText(controls, 12, originX, 460.0f, sf::Color(130, 125, 120)));
 }
-
+    
 void SFMLRenderer::renderOverlay(const GameEngine& engine) {
     GameState state = engine.getState();
     if (state == GameState::Playing) return;

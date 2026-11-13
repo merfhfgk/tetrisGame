@@ -6,6 +6,25 @@
 //
 #include "GameEngine.h"
 #include <algorithm>
+#include "CatStrategies.h"
+#include <cstdlib>
+
+class PawPushStrategy : public ICatStrategy {
+public:
+    void apply(GameEngine& engine) override {
+        int dir = (std::rand() % 2 == 0) ? -5 : 5;
+        engine.movePiece(dir, 0);
+    }
+    std::string getMessage() const override { return "Paw Push!"; }
+};
+
+class SleepOnKeyboardStrategy : public ICatStrategy {
+public:
+    void apply(GameEngine& engine) override {
+        engine.blockInput(5.0f);
+    }
+    std::string getMessage() const override { return "Cat on Keyboard!"; }
+};
 
 GameEngine::GameEngine(std::string savePath, std::string recordPath) : savePath(std::move(savePath)), recordPath(std::move(recordPath)) {
         scoreManager.setHighScore(SaveSystem::loadHighScore(this->recordPath));
@@ -23,6 +42,8 @@ void GameEngine::reset() {
     nextType = drawFromBag();
     state = GameState::Playing;
     spawnPiece();
+    catTimer = 60.0f;
+    catEffectDuration = 0.0f;
 }
 
 TetrominoType GameEngine::drawFromBag() {
@@ -58,6 +79,14 @@ void GameEngine::handleInput(Action action) {
         case Action::Save:  saveGame(); return;
         case Action::Load:  loadGame(); return;
         default: break;
+    }
+    
+    if (isInputBlocked()) {
+        if (action == Action::Left || action == Action::Right ||
+            action == Action::SoftDrop || action == Action::HardDrop ||
+            action == Action::Rotate) {
+            return;
+        }
     }
 
     if (state == GameState::Paused) return;
@@ -126,6 +155,19 @@ void GameEngine::update(float dt) {
     if (!currentPiece || state != GameState::Playing) return;
     
     dt = std::min(dt, maxDt);
+    if (catEffectDuration > 0.0f) {
+        catEffectDuration -= dt;
+    }
+
+    catTimer -= dt;
+    if (catTimer <= 0.0f) {
+        triggerCatEvent();
+        catTimer = 60.0f;
+    }
+    
+    if (inputBlockTimer > 0.0f) {
+        inputBlockTimer -= dt;
+    }
         
     if (canMoveDown()) {
         lockTimer = 0.0f;
@@ -200,4 +242,19 @@ bool GameEngine::loadGame() {
     newRecord = false;
     state = GameState::Playing;
     return true;
+}
+
+void GameEngine::triggerCatEvent() {
+    std::unique_ptr<ICatStrategy> strategy;
+    
+    if (std::rand() % 2 == 0) {
+        strategy = std::make_unique<PawPushStrategy>();
+        catEffectDuration = 3.0f;
+    } else {
+        strategy = std::make_unique<SleepOnKeyboardStrategy>();
+        catEffectDuration = 5.0f;
+    }
+
+    catMessage = strategy->getMessage();
+    strategy->apply(*this);
 }
